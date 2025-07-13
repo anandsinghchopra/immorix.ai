@@ -1,0 +1,297 @@
+/* ===== 🌑 General ===== */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #0d0d0d;
+  color: white;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#app {
+  display: flex;
+  height: 100vh;
+}
+
+/* ===== 🧱 Sidebar ===== */
+#sidebar {
+  width: 220px;
+  background-color: #111;
+  color: white;
+  padding: 15px;
+  overflow-y: auto;
+  border-right: 1px solid #222;
+}
+
+#chatList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#chatList li {
+  cursor: pointer;
+  padding: 8px 10px;
+  margin-bottom: 5px;
+  border-radius: 6px;
+  transition: 0.2s;
+  border-bottom: 1px solid #333;
+}
+
+#chatList li:hover {
+  background-color: #222;
+}
+
+#chatList li button {
+  background: transparent;
+  border: none;
+  color: #ff6600;
+  margin-left: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: color 0.2s;
+}
+
+#chatList li button:hover {
+  color: #fff;
+}
+
+/* ===== 💬 Chat Area ===== */
+#chatContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  background-color: #1a1a1a;
+  overflow: hidden;
+}
+
+/* ===== 🖼️ Header + Logo ===== */
+header {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.logo {
+  height: 60px;
+  width: auto;
+  display: block;
+  margin: 0 auto 5px auto;
+  object-fit: contain;
+}
+
+#chatTitle {
+  transition: all 0.3s ease;
+}
+
+/* ===== 📄 Chat Box ===== */
+#chatBox {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  border-radius: 8px;
+  background: #1f1f1f;
+  margin-bottom: 10px;
+}
+
+/* ===== 💬 Messages ===== */
+.message {
+  margin: 10px 0;
+  padding: 12px;
+  border-radius: 8px;
+  max-width: 75%;
+  line-height: 1.5;
+  font-size: 15px;
+  word-wrap: break-word;
+}
+
+.message.user {
+  background-color: #ff6600;
+  align-self: flex-end;
+  text-align: right;
+  margin-left: auto;
+}
+
+.message.ai {
+  background-color: #333333;
+  align-self: flex-start;
+  margin-right: auto;
+}
+
+.message.error {
+  background-color: #ff3333;
+  color: white;
+}
+
+/* Typing Indicator */
+#typing {
+  font-style: italic;
+  color: #aaa;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0% { opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { opacity: 0.4; }
+}
+
+/* ===== ✍️ Input Box ===== */
+.input-box {
+  display: flex;
+  gap: 10px;
+}
+
+textarea {
+  flex: 1;
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+  resize: none;
+  font-size: 16px;
+  background: #333;
+  color: white;
+}
+
+button {
+  background-color: #ff6600;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #e65c00;
+}
+
+/* ===== 🔐 Auth Form ===== */
+.auth-container {
+  max-width: 350px;
+  margin: 80px auto;
+  background: #1c1c1c;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 12px rgba(255, 102, 0, 0.4);
+  text-align: center;
+}
+
+.auth-container input {
+  width: 90%;
+  padding: 10px;
+  margin: 10px 0;
+  background: #333;
+  border: none;
+  color: white;
+  border-radius: 6px;
+}
+
+.auth-container button {
+  padding: 10px 20px;
+  background-color: #ff6600;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.auth-container button:hover {
+  background-color: #e65c00;
+}
+
+/* ===== 📱 Responsive ===== */
+@media (max-width: 768px) {
+  #app {
+    flex-direction: column;
+  }
+
+  #sidebar {
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid #333;
+  }
+
+  #chatContainer {
+    padding: 10px;
+  }
+
+  #chatBox {
+    max-height: 60vh;
+  }
+
+  textarea {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  button {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+
+  .message {
+    font-size: 14px;
+    padding: 10px;
+  }
+}
+
+/* ===== 🌙 Light Mode Support ===== */
+body.light-mode {
+  background-color: #f9f9f9;
+  color: #000;
+}
+
+body.light-mode #sidebar {
+  background-color: #f1f1f1;
+  color: #000;
+  border-right: 1px solid #ccc;
+}
+
+body.light-mode #chatContainer {
+  background-color: #fff;
+}
+
+body.light-mode #chatBox {
+  background: #eee;
+}
+
+body.light-mode .message.user {
+  background-color: #007aff;
+  color: white;
+}
+
+body.light-mode .message.ai {
+  background-color: #ddd;
+  color: #000;
+}
+
+body.light-mode textarea {
+  background: #fff;
+  color: #000;
+}
+
+body.light-mode button {
+  background-color: #007aff;
+  color: white;
+}
+
+body.light-mode button:hover {
+  background-color: #005ecb;
+}
+
+/* ===== 🎯 Scrollbar ===== */
+#chatBox::-webkit-scrollbar {
+  width: 6px;
+}
+
+#chatBox::-webkit-scrollbar-track {
+  background: #222;
+}
+
+#chatBox::-webkit-scrollbar-thumb {
+  background-color: #ff6600;
+  border-radius: 4px;
+}

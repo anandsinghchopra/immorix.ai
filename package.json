@@ -1,0 +1,21 @@
+{
+  "name": "immorix.ai",
+  "version": "1.0.0",
+  "main": "backend/index.js",
+  "scripts": {
+    "start": "node backend/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.0",
+    "express": "^5.1.0",
+    "node-fetch": "^3.3.2",
+    "openai": "^4.25.0",
+    "sqlite3": "^5.1.7"
+  },
+  "description": ""
+}

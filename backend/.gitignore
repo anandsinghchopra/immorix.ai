@@ -1,0 +1,12 @@
+# 🔐 Sensitive files
+.env
+
+# 🗑️ Node modules
+node_modules/
+
+# ⚙️ Logs
+*.log
+
+# 🧠 IDE settings (optional)
+.vscode/
+.DS_Store
