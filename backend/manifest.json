@@ -1,0 +1,21 @@
+{
+  "name": "Immorix AI",
+  "short_name": "Immorix",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#ff6600",
+  "description": "Immorix is an intelligent AI chatbot created by Anand Singh Chopra.",
+  "icons": [
+    {
+      "src": "./assets/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "./assets/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}

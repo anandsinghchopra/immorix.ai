@@ -263,3 +263,45 @@ function toggleTheme() {
 window.addEventListener("DOMContentLoaded", () => {
   loadChatList();
 });
+const translations = {
+  en: {
+    send: "Send",
+    placeholder: "Type your message...",
+    newChat: "🆕 New Chat",
+    logout: "🚪 Logout",
+    title: "Immorix AI",
+    reset: "Reset Password",
+  },
+  hi: {
+    send: "भेजें",
+    placeholder: "अपना संदेश टाइप करें...",
+    newChat: "🆕 नई बातचीत",
+    logout: "🚪 लॉग आउट",
+    title: "इमोरिक्स एआई",
+    reset: "पासवर्ड रीसेट करें",
+  }
+};
+
+let currentLang = localStorage.getItem("lang") || "en";
+
+function applyLang() {
+  document.getElementById("sendBtn").innerText = translations[currentLang].send;
+  document.getElementById("userInput").placeholder = translations[currentLang].placeholder;
+  document.getElementById("newChatBtn").innerText = translations[currentLang].newChat;
+  document.getElementById("logoutBtn").innerText = translations[currentLang].logout;
+  document.getElementById("chatTitle").innerText = translations[currentLang].title;
+}
+
+document.getElementById("langToggleBtn").addEventListener("click", () => {
+  currentLang = currentLang === "en" ? "hi" : "en";
+  localStorage.setItem("lang", currentLang);
+  applyLang();
+});
+
+window.addEventListener("DOMContentLoaded", applyLang);
+// 🌐 PWA Install Registration
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js')
+    .then(() => console.log('✅ Service Worker Registered'))
+    .catch(err => console.error('❌ SW Error:', err));
+}
