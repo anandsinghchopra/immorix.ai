@@ -1,24 +1,36 @@
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs'); // ✅ bcryptjs instead of bcrypt
 const jwt = require('jsonwebtoken');
-const db = require('./db');
+const nodemailer = require('nodemailer');
 const { spawn } = require('child_process');
+const db = require('./db');
 
 const app = express();
-const port = 3000;
-const JWT_SECRET = 'immorix_secret_key'; // बाद में .env में डाल सकते हो
+const port = process.env.PORT || 3000;
+const JWT_SECRET = process.env.JWT_SECRET;
 
 app.use(cors());
 app.use(bodyParser.json());
 
-/* ✅ Signup Route */
+const otpStore = {}; // In-memory OTP store
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
+
+// ✅ Signup
 app.post('/signup', async (req, res) => {
   const { username, password } = req.body;
-  if (!username || !password) {
+  if (!username || !password)
     return res.status(400).json({ error: 'Username and password are required' });
-  }
 
   const hashedPassword = await bcrypt.hash(password, 10);
   db.run(`INSERT INTO users (username, password) VALUES (?, ?)`, [username, hashedPassword], function (err) {
@@ -27,7 +39,7 @@ app.post('/signup', async (req, res) => {
   });
 });
 
-/* ✅ Login Route */
+// ✅ Login
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
   db.get(`SELECT * FROM users WHERE username = ?`, [username], async (err, user) => {
@@ -41,7 +53,7 @@ app.post('/login', (req, res) => {
   });
 });
 
-/* ✅ Chat Route (Only say creator name if asked) */
+// ✅ Chat with Ollama
 app.post('/chat', (req, res) => {
   const userMessage = req.body.message;
   if (!userMessage) return res.status(400).json({ error: 'Message is required' });
@@ -57,13 +69,11 @@ app.post('/chat', (req, res) => {
     "who created you", "your creator", "who made you",
     "who is your owner", "founder", "developer", "made you", "owner", "who built you"
   ];
-
   const isAskingAboutCreator = creatorKeywords.some(keyword =>
     lowerCaseMsg.includes(keyword)
   );
-
   const systemPrompt = isAskingAboutCreator
-    ? `You are Immorix AI. If asked about your creator, respond that Anand Singh Chopra is your creator and owner. Never call yourself Mistral.`
+    ? `You are Immorix AI. Your creator is Anand Singh Chopra. Never call yourself Mistral.`
     : ``;
 
   const prompt = `
@@ -93,14 +103,8 @@ User: ${userMessage}
   ollama.stdin.end();
 });
 
-/* ✅ Start Server */
-app.listen(port, () => {
-  console.log(`✅ Immorix Backend running at http://localhost:${port}`);
-});
-const chatDB = require('./models/chat');
-
-// 📝 Save message (user or AI)
-app.post('/api/chat/save', async (req, res) => {
+// ✅ Save chat
+app.post('/api/chat/save', (req, res) => {
   const { chat_id, role, message } = req.body;
   const token = req.headers.authorization?.split(' ')[1];
   try {
@@ -118,7 +122,7 @@ app.post('/api/chat/save', async (req, res) => {
   }
 });
 
-// 📜 Get all chat IDs
+// ✅ Get chat list
 app.get('/api/chat/list', (req, res) => {
   const token = req.headers.authorization?.split(' ')[1];
   try {
@@ -136,7 +140,7 @@ app.get('/api/chat/list', (req, res) => {
   }
 });
 
-// 📄 Get messages of a chat
+// ✅ Get chat messages by chat_id
 app.get('/api/chat/:chat_id', (req, res) => {
   const token = req.headers.authorization?.split(' ')[1];
   const chat_id = req.params.chat_id;
@@ -154,3 +158,61 @@ app.get('/api/chat/:chat_id', (req, res) => {
     res.status(401).json({ error: 'Unauthorized' });
   }
 });
+
+// ✅ Send OTP for reset
+app.post('/send-otp', (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: "Email required" });
+
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  const expiresAt = Date.now() + 5 * 60 * 1000;
+  otpStore[email] = { otp, expiresAt };
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: "Immorix - Password Reset OTP",
+    text: `Your OTP is: ${otp}. It will expire in 5 minutes.`
+  };
+
+  transporter.sendMail(mailOptions, (err, info) => {
+    if (err) return res.status(500).json({ error: "Email send failed" });
+    res.json({ message: "OTP sent to email" });
+  });
+});
+
+// ✅ Verify OTP
+app.post('/verify-otp', (req, res) => {
+  const { email, otp } = req.body;
+  const record = otpStore[email];
+
+  if (!record) return res.status(400).json({ error: "No OTP found" });
+  if (Date.now() > record.expiresAt) return res.status(400).json({ error: "OTP expired" });
+  if (record.otp !== otp) return res.status(400).json({ error: "Invalid OTP" });
+
+  delete otpStore[email];
+  res.json({ success: true });
+});
+
+// ✅ Reset password with OTP verified
+app.post('/reset-password-email', async (req, res) => {
+  const { email, newPassword } = req.body;
+  if (!email || !newPassword) return res.status(400).json({ error: "Fields required" });
+
+  const hashed = await bcrypt.hash(newPassword, 10);
+  db.run(`UPDATE users SET password = ? WHERE username = ?`, [hashed, email], function (err) {
+    if (err || this.changes === 0) return res.status(400).json({ error: "User not found" });
+    res.json({ message: "Password updated" });
+  });
+});
+
+// ✅ Root check
+app.get('/', (req, res) => {
+  res.send('🚀 Immorix AI Backend is Running!');
+});
+
+// ✅ Start server
+app.listen(port, () => {
+  console.log(`✅ Immorix Backend running at http://localhost:${port}`);
+});
+
